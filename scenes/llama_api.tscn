@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bnq07nbnvlrhl"]
+
+[ext_resource type="Script" path="res://scripts/llama_api.gd" id="1_urdn4"]
+
+[node name="LlamaAPI" type="Node"]
+script = ExtResource("1_urdn4")
