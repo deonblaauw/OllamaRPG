@@ -3,6 +3,8 @@ extends CharacterBody2D
 @onready var llama_api = $LlamaAPI
 @onready var chat_timer = $ChatTimer
 @onready var rich_text_label = $Control/RichTextLabel
+@onready var detection_cooldown_timer = $DetectionCooldownTimer
+var detection_cooldown = false
 
 const PREPROMPT = " .You see and describe a "
 const HIST_PREPEND = " : "
@@ -26,20 +28,27 @@ func _ready():
 func _physics_process(delta):
 	#print(DisplayServer.tts_is_speaking())
 	player_movement(delta)
-	
-	if talking == true:
-		if DisplayServer.tts_is_speaking() == false:
-				chat_timer.start()
-				talking = false
+	manage_chats()
 		
 	
 func send_prompt_to_llama(prompt):
 	llama_api.send_prompt(chat_history+prompt, personality, Callable(self, "_on_llama_response"))
 	append_to_chat_history(prompt)
 
+func manage_chats():
+	
+	if talking == true:
+		if DisplayServer.tts_is_speaking() == false:
+				chat_timer.start()
+				talking = false
+				
+		# escape sequence to quit a chat. chat still saved in history
+		if Input.is_key_pressed(KEY_SPACE) or Input.is_key_pressed(KEY_ENTER):
+			clear_chat()
+			
+		
 
-func player_movement(delta):
-	delta = delta
+func player_movement(_delta):
 	if Input.is_action_pressed("ui_right"):
 		velocity.x = speed
 		velocity.y = 0
@@ -96,20 +105,24 @@ func talk(msg):
 	DisplayServer.tts_speak(msg, voice_id)
 	talking = true
 
-func _on_sense_body_shape_entered(body_rid, body, body_shape_index, local_shape_index):
-	#print("[Player] Body entered") # Replace with function body.
-	body_rid = body_rid
-	body_shape_index = body_shape_index
-	local_shape_index = local_shape_index
+# Function called when player detects something 
+func _on_sense_body_shape_entered(_body_rid, body, _body_shape_index, _local_shape_index):
+	
 	if (body.name != "TileMap") and (!body.has_method("player")):
-		#print_full_body_details(body)
-		print(PREPROMPT+body.name)
-		send_prompt_to_llama(PREPROMPT+body.name)
-		talking = false
-		chat_timer.stop()
-		DisplayServer.tts_stop()
-		rich_text_label.clear()
-		rich_text_label.add_text(body.name)
+		if detection_cooldown == true:
+			
+			print("cool down: ", PREPROMPT+body.name)
+			chat_history+PREPROMPT+body.name
+		else:
+			print("detected")
+			#print_full_body_details(body)
+			print(PREPROMPT+body.name)
+			send_prompt_to_llama(PREPROMPT+body.name)
+			clear_chat()
+			rich_text_label.add_text(body.name)
+			# start detection cooldown cycle
+			detection_cooldown = true
+			detection_cooldown_timer.start()	
 	
 
 func _on_llama_response(response, is_error):
@@ -124,8 +137,15 @@ func _on_llama_response(response, is_error):
 		print("---------------- Chat History ----------------------")
 		print(chat_history)
 		print("Chars: ",chat_history.length())
-		print("Tokens: ",chat_history.length()/4)
+		print("Tokens: ",chat_history.length()/4.0)
 		print("---------------------------------------------------")
+
+func clear_chat():
+	talking = false
+	chat_timer.stop()
+	DisplayServer.tts_stop()
+	rich_text_label.clear()
+	detection_cooldown = false
 
 func append_to_chat_history(text):
 	# Append new text to the chat history
@@ -177,3 +197,8 @@ func _on_chat_timer_timeout():
 
 func player():
 	pass
+
+
+
+func _on_detection_cooldown_timer_timeout():
+	detection_cooldown = false # cooldown over

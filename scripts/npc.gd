@@ -1,6 +1,5 @@
 extends CharacterBody2D
 
-@onready var player = $"../Player"
 @onready var target_detect_range = $"Target Detection Area/TargetDetectRange"
 @onready var target_detection_area = $"Target Detection Area"
 @onready var navigation_agent_2d = $Navigation/NavigationAgent2D
@@ -19,7 +18,7 @@ func _ready():
 	target = null
 	state = "patrolling"
 	default_scale = target_detect_range.scale # save default scale of detection range
-	$AnimatedSprite2D.play("front_idle")
+	$AnimatedSprite2D.play("side_idle_right")
 
 func _physics_process(delta):
 	if state == "patrolling":
@@ -30,7 +29,7 @@ func _physics_process(delta):
 		target_detect_range.scale = target_detect_range.scale.lerp(Vector2(2, 2), 0.01)
 		agent_nav(navigation_agent_2d.target_position, delta)
 	else:
-		animation_handler("front_idle")
+		animation_handler("side_idle_right")
 
 func _on_target_detection_area_body_entered(body):
 	# detects if player entered detection zone
@@ -41,8 +40,8 @@ func _on_target_detection_area_body_entered(body):
 	
 	#print_body_details(body)
 	
-func _on_target_detection_area_body_exited(body):
-	body = body
+func _on_target_detection_area_body_exited(_body):
+
 	print("[SlimyMcSlime] Lost sight. Patrolling")
 	target = null
 	state = "patrolling" # Replace with function body.
@@ -105,10 +104,6 @@ func animation_handler(direction):
 func round_to_decimal_places(value, places):
 	var factor = pow(10, places)
 	return round(value * factor) / factor
-
-func lookAtPlayer():
-	$AnimatedSprite2D.flip_h = (position > player.position)
-
 
 func _on_timer_timeout():
 	if target != null:

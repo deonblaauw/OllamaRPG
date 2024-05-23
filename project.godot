@@ -19,6 +19,10 @@ config/icon="res://assets/icon.svg"
 
 general/text_to_speech=true
 
+[debug]
+
+gdscript/warnings/unused_variable=0
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/fuku/plugin.cfg")

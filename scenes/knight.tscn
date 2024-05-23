@@ -468,7 +468,7 @@ script = ExtResource("1_3sa5a")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -12)
 sprite_frames = SubResource("SpriteFrames_spvug")
-animation = &"front_walk"
+animation = &"side_idle_right"
 autoplay = "side_walk_right"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

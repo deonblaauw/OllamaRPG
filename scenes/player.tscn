@@ -464,25 +464,27 @@ z_index = 1
 y_sort_enabled = true
 layout_mode = 3
 anchors_preset = 0
-offset_left = 7.0
-offset_top = -48.0
-offset_right = 47.0
-offset_bottom = -20.0
+offset_left = -107.0
+offset_top = 12.0
+offset_right = 111.0
+offset_bottom = 43.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Control"]
 y_sort_enabled = true
 layout_mode = 0
-offset_left = -127.0
-offset_top = 57.0
-offset_right = 115.0
-offset_bottom = 157.0
+offset_left = 1.0
+offset_top = -2.0
+offset_right = 214.0
+offset_bottom = 27.0
 theme_override_fonts/normal_font = ExtResource("3_m3a4f")
-bbcode_enabled = true
-fit_content = true
 scroll_following = true
 
 [node name="ChatTimer" type="Timer" parent="."]
 wait_time = 2.0
+one_shot = true
+
+[node name="DetectionCooldownTimer" type="Timer" parent="."]
+wait_time = 10.0
 one_shot = true
 
 [connection signal="area_entered" from="Perception/Sense" to="." method="_on_sense_area_entered"]
@@ -490,3 +492,4 @@ one_shot = true
 [connection signal="body_entered" from="Perception/Sense" to="." method="_on_sense_body_entered"]
 [connection signal="body_shape_entered" from="Perception/Sense" to="." method="_on_sense_body_shape_entered"]
 [connection signal="timeout" from="ChatTimer" to="." method="_on_chat_timer_timeout"]
+[connection signal="timeout" from="DetectionCooldownTimer" to="." method="_on_detection_cooldown_timer_timeout"]
