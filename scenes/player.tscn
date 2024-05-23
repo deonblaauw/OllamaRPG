@@ -449,7 +449,7 @@ offset = Vector2(2.08165e-12, -15)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 offset = Vector2(2.08165e-12, -15)
-zoom = Vector2(5, 5)
+zoom = Vector2(4, 4)
 
 [node name="Perception" type="Node2D" parent="."]
 
