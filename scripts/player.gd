@@ -4,13 +4,13 @@ extends CharacterBody2D
 @onready var chat_timer = $ChatTimer
 @onready var rich_text_label = $Control/RichTextLabel
 
-const PREPROMPT = " .I see and describe a "
+const PREPROMPT = " .You see and describe a "
 const HIST_PREPEND = " : "
 
-@export var personality: String = "I am a brave adventurer 
-on a quest! I am very busy questing, I therefore keep my 
-answers short and to the point. I read all of the instructions
-given to me, but only comment on the most recent part."
+@export var personality: String = "You are a brave adventurer 
+on a quest! You are very busy questing, you therefore keep your 
+answers short and to the point. You read all of the instructions
+given to you, but only comment on the most recent part."
 
 
 var chat_history = " "
@@ -91,9 +91,7 @@ func animation_handler(direction):
 	
 func talk(msg):
 	var voices = DisplayServer.tts_get_voices_for_language("en")
-	print(voices)
 	var voice_id = voices[0]
-	print("voicesOns poes hom ", voice_id)
 	DisplayServer.tts_stop()
 	DisplayServer.tts_speak(msg, voice_id)
 	talking = true
@@ -105,7 +103,7 @@ func _on_sense_body_shape_entered(body_rid, body, body_shape_index, local_shape_
 	local_shape_index = local_shape_index
 	if (body.name != "TileMap") and (!body.has_method("player")):
 		#print_full_body_details(body)
-		print("Found ", body.name)
+		print(PREPROMPT+body.name)
 		send_prompt_to_llama(PREPROMPT+body.name)
 		talking = false
 		chat_timer.stop()
@@ -123,11 +121,11 @@ func _on_llama_response(response, is_error):
 		rich_text_label.add_text(response)
 		append_to_chat_history(HIST_PREPEND+response)
 		talk(response) 
-		print("--------------------------------------")
+		print("---------------- Chat History ----------------------")
 		print(chat_history)
 		print("Chars: ",chat_history.length())
 		print("Tokens: ",chat_history.length()/4)
-		print("--------------------------------------")
+		print("---------------------------------------------------")
 
 func append_to_chat_history(text):
 	# Append new text to the chat history
