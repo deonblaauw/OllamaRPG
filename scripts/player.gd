@@ -3,10 +3,13 @@ extends CharacterBody2D
 @onready var llama_api = $LlamaAPI
 @onready var chat_timer = $ChatTimer
 @onready var rich_text_label = $Control/RichTextLabel
-@onready var detection_cooldown_timer = $DetectionCooldownTimer
-var detection_cooldown = false
 
-const PREPROMPT = ". You see and describe a "
+#@onready var detection_cooldown_timer = $DetectionCooldownTimer
+var detection_cooldown = false
+var detected_bodies = []
+var detected_bodies_index = 1
+
+const PREPROMPT = ". You find a "
 const HIST_PREPEND = " : "
 
 @export var personality: String = "You are a brave adventurer 
@@ -24,10 +27,13 @@ const speed = 100
 func _ready():
 	rich_text_label.add_theme_font_size_override("normal_font_size", 8)
 	animation_handler("idle")
+	#detection_cooldown = true
+	#detection_cooldown_timer.start()
 
-func _physics_process(delta):
+func _physics_process(delta):		
 	#print(DisplayServer.tts_is_speaking())
 	player_movement(delta)
+	handle_llama_queue()
 	manage_speech()
 		
 	
@@ -35,6 +41,24 @@ func send_prompt_to_llama(prompt):
 	llama_api.send_prompt(chat_history+prompt, personality, Callable(self, "_on_llama_response"))
 	append_to_chat_history(prompt)
 
+func handle_llama_queue():
+	if detected_bodies.size() > 0:
+		if detection_cooldown == true:
+			print("Chat Cool down ... Hold 'yer horses")
+				#print("cool down: ", PREPROMPT+body.name)
+				#append_to_chat_history(PREPROMPT+body.name)
+		else:
+			var body = detected_bodies.pop_back()
+			print("emptying from queue: ", body.name)
+			#print_full_body_details(body)
+			print(PREPROMPT+body.name)
+			send_prompt_to_llama(PREPROMPT+body.name)
+			clear_chat()
+			rich_text_label.add_text(body.name)
+			# start detection cooldown cycle
+			detection_cooldown = true
+			#detection_cooldown_timer.start()
+			
 func manage_speech():
 	
 	if talking == true:
@@ -110,27 +134,31 @@ func talk(msg):
 func _on_sense_body_shape_entered(_body_rid, body, _body_shape_index, _local_shape_index):
 	
 	if (body.name != "TileMap") and (!body.has_method("player")):
-		if detection_cooldown == true:
-			
-			print("cool down: ", PREPROMPT+body.name)
-			append_to_chat_history(PREPROMPT+body.name)
-			#chat_history+PREPROMPT+body.name
-		else:
-			print("detected")
-			#print_full_body_details(body)
-			print(PREPROMPT+body.name)
-			send_prompt_to_llama(PREPROMPT+body.name)
-			clear_chat()
-			rich_text_label.add_text(body.name)
-			# start detection cooldown cycle
-			detection_cooldown = true
-			detection_cooldown_timer.start()	
+		print("appending: ",body.name)		
+		detected_bodies.append(body)
+		
+		#if detection_cooldown == true:
+			#print("cool down: ", PREPROMPT+body.name)
+			#append_to_chat_history(PREPROMPT+body.name)
+			#detected_body_index = detected_bodies.size()
+		#else:
+			#if detected_bodies.size() > 0:
+				#print("emptying from queue: ", body.name)
+				##print_full_body_details(body)
+				#print(PREPROMPT+body.name)
+				#send_prompt_to_llama(PREPROMPT+body.name)
+				#clear_chat()
+				#rich_text_label.add_text(body.name)
+				## start detection cooldown cycle
+				#detection_cooldown = true
+				#detection_cooldown_timer.start()
+				#detected_bodies.pop_back()	
 	
 func _on_sense_body_shape_exited(body_rid, body, body_shape_index, local_shape_index):
 	pass # Replace with function body.
 
 func _on_llama_response(response, is_error):
-	
+	detection_cooldown = false # cooldown over
 	rich_text_label.clear()
 	if is_error:
 		rich_text_label.add_text(response + ". Ollama might be down")
@@ -204,6 +232,6 @@ func player():
 
 
 
-func _on_detection_cooldown_timer_timeout():
-	detection_cooldown = false # cooldown over
-
+#func _on_detection_cooldown_timer_timeout():
+	#detection_cooldown = false # cooldown over
+#
