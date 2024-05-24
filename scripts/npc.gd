@@ -3,19 +3,26 @@ extends CharacterBody2D
 @onready var target_detect_range = $"Target Detection Area/TargetDetectRange"
 @onready var target_detection_area = $"Target Detection Area"
 @onready var navigation_agent_2d = $Navigation/NavigationAgent2D
+@onready var search_timer = $"Target Detection Area/SearchTimer"
 
 var target = null #This sets player as target. remove later
 
 var speed = 50
 var acceleration = 5
 var state = "idle"
+var searchTimerKick = false
 
 @export var patrol_points = [Vector2(-30, 40), Vector2(-30, -80)]
-var current_point_index = 0
+@export var search_points = [Vector2(-127, 232), Vector2(126, 222)]
+
+
+var current_patrol_point_index = 0
+var current_search_point_index = 0
 var default_scale = Vector2.ZERO
 
 func _ready():
 	target = null
+	searchTimerKick = true
 	state = "patrolling"
 	default_scale = target_detect_range.scale # save default scale of detection range
 	$AnimatedSprite2D.play("side_idle_right")
@@ -23,8 +30,17 @@ func _ready():
 func _physics_process(delta):
 	if state == "patrolling":
 		target_detect_range.scale = target_detect_range.scale.lerp(default_scale, 0.01)
-		agent_nav(patrol_points[current_point_index], delta)
-		update_patrol_points(patrol_points[current_point_index])
+		agent_nav(patrol_points[current_patrol_point_index], delta)
+		update_patrol_points(patrol_points[current_patrol_point_index],patrol_points)
+	elif state == "searching":
+		target_detect_range.scale = target_detect_range.scale.lerp(default_scale, 0.01)
+		agent_nav(search_points[current_search_point_index], delta)
+		update_search_points(search_points[current_search_point_index],search_points)
+		
+		if searchTimerKick == true:
+			print("start timer")
+			search_timer.start()
+			searchTimerKick = false
 	elif state == "hunting":
 		target_detect_range.scale = target_detect_range.scale.lerp(Vector2(2, 2), 0.01)
 		agent_nav(navigation_agent_2d.target_position, delta)
@@ -74,11 +90,18 @@ func agent_nav(target_position, delta):
 	# Update the animation based on motion
 	update_animation(vel)
 	
-func update_patrol_points(target_position):
+func update_patrol_points(target_position,point_array):
 	# Check if the enemy has reached the target position
 	if position.distance_to(target_position) < 5:
 		# Move to the next patrol point
-		current_point_index = (current_point_index + 1) % patrol_points.size()
+		current_patrol_point_index = (current_patrol_point_index + 1) % point_array.size()
+
+func update_search_points(target_position,point_array):
+	# Check if the enemy has reached the target position
+	if position.distance_to(target_position) < 5:
+		# Move to the next patrol point
+		current_search_point_index = (current_search_point_index + 1) % point_array.size()
+
 	
 # Code that updates animation by calling animation handler
 func update_animation(vel):
@@ -119,13 +142,11 @@ func _on_timer_timeout():
 	if target != null:
 		navigation_agent_2d.target_position = target.global_position # Replace with function body.
 
-# LLama Integration
-func talk(msg):
-	var voices = DisplayServer.tts_get_voices_for_language("en")
-	var voice_id = voices[0]
-	DisplayServer.tts_stop()
-	DisplayServer.tts_speak(msg, voice_id)
-	#talking = true
+func _on_search_timer_timeout():
+	print("Can't find anything, going to sleep zzz...")
+	state = "idle" # Replace with function body.
+	searchTimerKick = true
 
 func npc():
 	pass
+

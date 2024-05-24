@@ -1,9 +1,10 @@
-res://scenes/player.tscn
-res://scripts/player.gd
 res://scenes/world.tscn
 res://scenes/knight.tscn
+res://scenes/player.tscn
 res://scenes/chest.tscn
-res://scripts/npc.gd
-res://scripts/llama_api.gd
 res://scenes/purple_slime.tscn
 res://scenes/slimy_mc_slime_face.tscn
+res://scripts/slime_monster.gd
+res://scenes/green_slime.tscn
+res://scripts/npc.gd
+res://scripts/movement.gd

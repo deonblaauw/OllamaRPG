@@ -1,7 +1,23 @@
-[gd_scene load_steps=20 format=3 uid="uid://d3l2sb3hwxe2j"]
+[gd_scene load_steps=22 format=3 uid="uid://d3l2sb3hwxe2j"]
 
 [ext_resource type="Texture2D" uid="uid://oxmfv05lunhd" path="res://assets/sprites/characters/slime_purple.png" id="1_7w63u"]
 [ext_resource type="Script" path="res://scripts/slime_monster.gd" id="1_lesvt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1gane"]
+atlas = ExtResource("1_7w63u")
+region = Rect2(0, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bkhg7"]
+atlas = ExtResource("1_7w63u")
+region = Rect2(24, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cbiu2"]
+atlas = ExtResource("1_7w63u")
+region = Rect2(48, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tlkva"]
+atlas = ExtResource("1_7w63u")
+region = Rect2(72, 24, 24, 24)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_870n7"]
 atlas = ExtResource("1_7w63u")
@@ -27,21 +43,13 @@ region = Rect2(0, 0, 24, 24)
 atlas = ExtResource("1_7w63u")
 region = Rect2(24, 0, 24, 24)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_1gane"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_y0vrp"]
 atlas = ExtResource("1_7w63u")
-region = Rect2(0, 24, 24, 24)
+region = Rect2(0, 0, 24, 24)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_bkhg7"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_mfu6t"]
 atlas = ExtResource("1_7w63u")
-region = Rect2(24, 24, 24, 24)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_cbiu2"]
-atlas = ExtResource("1_7w63u")
-region = Rect2(48, 24, 24, 24)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_tlkva"]
-atlas = ExtResource("1_7w63u")
-region = Rect2(72, 24, 24, 24)
+region = Rect2(24, 0, 24, 24)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wkj31"]
 atlas = ExtResource("1_7w63u")
@@ -63,6 +71,23 @@ region = Rect2(72, 0, 24, 24)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_1gane")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bkhg7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cbiu2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tlkva")
+}],
+"loop": true,
+"name": &"back_walk",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_870n7")
 }, {
 "duration": 1.0,
@@ -76,6 +101,23 @@ animations = [{
 }],
 "loop": true,
 "name": &"death",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1gane")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bkhg7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cbiu2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tlkva")
+}],
+"loop": true,
+"name": &"front_walk",
 "speed": 5.0
 }, {
 "frames": [{
@@ -108,6 +150,34 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_y0vrp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mfu6t")
+}],
+"loop": true,
+"name": &"side_idle_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1gane")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bkhg7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cbiu2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tlkva")
+}],
+"loop": true,
+"name": &"side_walk_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_wkj31")
 }, {
 "duration": 1.0,
@@ -132,13 +202,13 @@ radius = 47.0956
 
 [node name="Purple Slime" type="CharacterBody2D"]
 script = ExtResource("1_lesvt")
+search_points = [Vector2(-332, -20), Vector2(-76, 5)]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -12)
 sprite_frames = SubResource("SpriteFrames_spvug")
-animation = &"wake_up"
+animation = &"side_walk_right"
 autoplay = "moving"
-frame_progress = 0.98036
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -8)
@@ -160,11 +230,11 @@ collision_mask = 2
 position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_nly2m")
 
-[node name="PatrolTimer" type="Timer" parent="Target Detection Area"]
+[node name="SearchTimer" type="Timer" parent="Target Detection Area"]
 wait_time = 10.0
 one_shot = true
 
 [connection signal="timeout" from="Navigation/Timer" to="." method="_on_timer_timeout"]
 [connection signal="body_entered" from="Target Detection Area" to="." method="_on_target_detection_area_body_entered"]
 [connection signal="body_exited" from="Target Detection Area" to="." method="_on_target_detection_area_body_exited"]
-[connection signal="timeout" from="Target Detection Area/PatrolTimer" to="." method="_on_patrol_timer_timeout"]
+[connection signal="timeout" from="Target Detection Area/SearchTimer" to="." method="_on_search_timer_timeout"]
