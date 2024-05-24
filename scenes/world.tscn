@@ -661,7 +661,7 @@ layer_2/tile_data = PackedInt32Array(-393230, 1, 0, -327694, 1, 0, -262158, 1, 0
 
 [node name="George" parent="." instance=ExtResource("5_6170o")]
 y_sort_enabled = true
-position = Vector2(-280, 106)
+position = Vector2(-386, 106)
 
 [node name="Goofy Ghost" parent="." instance=ExtResource("6_2wwgf")]
 z_index = 1
@@ -683,6 +683,9 @@ patrol_points = [Vector2(-127, 232), Vector2(126, 222)]
 position = Vector2(-526, 122)
 patrol_points = [Vector2(-386, -143), Vector2(-526, 122)]
 
+[node name="Chest" parent="." instance=ExtResource("14_hkk3t")]
+position = Vector2(-371, 126)
+
 [node name="Coin" parent="." instance=ExtResource("8_nyht3")]
 position = Vector2(169, -121)
 
@@ -698,6 +701,3 @@ position = Vector2(264, 63)
 [node name="Table" parent="." instance=ExtResource("12_3vsho")]
 z_index = 2
 position = Vector2(160, -41)
-
-[node name="Chest" parent="." instance=ExtResource("14_hkk3t")]
-position = Vector2(-350, 292)
