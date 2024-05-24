@@ -2,7 +2,7 @@ extends Node
 
 @export var url: String = "http://localhost:11434/v1/chat/completions"
 @export var headers = ["Content-Type: application/json"]
-@export var model: String = "llama2"
+@export var model: String = "llama3"
 #@export var system_prompt: String = "You are dumb dumb because you have not been initialized. You cannot answers questions and just say: duh, please init me."
 
 var request: HTTPRequest
@@ -21,7 +21,10 @@ func send_prompt(user_prompt: String, system_prompt: String, loc_callback: Calla
 		{"role": "system", "content": system_prompt},
 		{"role": "user", "content": user_prompt}
 	]
-	
+	print("**********************************")
+	print("Sending to LLM")
+	print(messages)
+	print("**********************************")
 	var body = JSON.stringify({"messages": messages, "model": model})
 	var error = request.request(url, headers, HTTPClient.METHOD_POST, body)
 	if error != OK:

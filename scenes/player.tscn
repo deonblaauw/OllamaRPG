@@ -480,17 +480,15 @@ theme_override_fonts/normal_font = ExtResource("3_m3a4f")
 bbcode_enabled = true
 scroll_following = true
 
-[node name="TextEdit" type="TextEdit" parent="Control"]
+[node name="UserInput" type="LineEdit" parent="Control"]
 layout_mode = 0
-offset_right = 221.0
-offset_bottom = 44.0
+offset_left = -27.0
+offset_top = -2.0
+offset_right = 238.0
+offset_bottom = 29.0
 
 [node name="ChatTimer" type="Timer" parent="."]
 wait_time = 2.0
-one_shot = true
-
-[node name="DetectionCooldownTimer" type="Timer" parent="."]
-wait_time = 10.0
 one_shot = true
 
 [connection signal="area_entered" from="Perception/Sense" to="." method="_on_sense_area_entered"]
@@ -498,6 +496,5 @@ one_shot = true
 [connection signal="body_entered" from="Perception/Sense" to="." method="_on_sense_body_entered"]
 [connection signal="body_shape_entered" from="Perception/Sense" to="." method="_on_sense_body_shape_entered"]
 [connection signal="body_shape_exited" from="Perception/Sense" to="." method="_on_sense_body_shape_exited"]
-[connection signal="gui_input" from="Control/TextEdit" to="." method="_on_text_edit_gui_input"]
+[connection signal="text_submitted" from="Control/UserInput" to="." method="_on_user_input_text_submitted"]
 [connection signal="timeout" from="ChatTimer" to="." method="_on_chat_timer_timeout"]
-[connection signal="timeout" from="DetectionCooldownTimer" to="." method="_on_detection_cooldown_timer_timeout"]

@@ -28,21 +28,31 @@ func _physics_process(delta):
 	elif state == "hunting":
 		target_detect_range.scale = target_detect_range.scale.lerp(Vector2(2, 2), 0.01)
 		agent_nav(navigation_agent_2d.target_position, delta)
+		target_reached(navigation_agent_2d.target_position, delta)
+	elif state == "interact":
+		pass
 	else:
 		animation_handler("side_idle_right")
 
+func target_reached(target_position, delta):
+	var dist = target_position - global_position
+	dist = dist.length()
+	if dist < 20:
+		print("Target reached")
+		state = "interact"
+	
 func _on_target_detection_area_body_entered(body):
 	# detects if player entered detection zone
 	if body.has_method("player"):
 		target = body
 		state = "hunting"
-		print("[SlimyMcSlime] Contact made with player!!") # Replace with function body.
+		print("[NPC] Contact made with player!!") # Replace with function body.
 	
 	#print_body_details(body)
 	
 func _on_target_detection_area_body_exited(_body):
 
-	print("[SlimyMcSlime] Lost sight. Patrolling")
+	print("[NPC] Lost sight. Patrolling")
 	target = null
 	state = "patrolling" # Replace with function body.
 

@@ -3,6 +3,8 @@ extends CharacterBody2D
 @onready var llama_api = $LlamaAPI
 @onready var chat_timer = $ChatTimer
 @onready var rich_text_label = $Control/RichTextLabel
+@onready var user_input = $Control/UserInput
+
 
 #@onready var detection_cooldown_timer = $DetectionCooldownTimer
 var detection_cooldown = false
@@ -10,12 +12,23 @@ var detected_bodies = []
 var detected_bodies_index = 1
 
 const PREPROMPT = ". You find a "
+const POSTPROMPT = ""
 const HIST_PREPEND = " : "
 
 @export var personality: String = "You are a brave adventurer 
 on a quest! You are very busy questing, you therefore keep your 
 answers short and to the point. You read all of the instructions
-given to you, but only comment on the most recent part."
+given to you, but only comment on the most recent part. You 
+NEVER mention locations. 
+
+You have the following commands available to you:
+	<cmd>move(x,y)</cmd>
+	<cmd>open(name)</cmd>
+	<cmd>pickup(name)</cmd>
+	
+	When asked to walk or go somewhere, you need to output <cmd>move(x,y)</cmd>
+	where x and y are the location coordinates. You never move to unknown locations,
+	you only move to known locations you have seen before." 
 
 
 var chat_history = " "
@@ -27,37 +40,32 @@ const speed = 100
 func _ready():
 	rich_text_label.add_theme_font_size_override("normal_font_size", 8)
 	animation_handler("idle")
-	#detection_cooldown = true
-	#detection_cooldown_timer.start()
 
 func _physics_process(delta):		
-	#print(DisplayServer.tts_is_speaking())
 	player_movement(delta)
 	handle_llama_queue()
 	manage_speech()
 		
 	
 func send_prompt_to_llama(prompt):
-	llama_api.send_prompt(chat_history+prompt, personality, Callable(self, "_on_llama_response"))
+	llama_api.send_prompt("{HISTORY: "+chat_history+" }"
+	+ "{RECENT EVENT YOU NEED TO ADDRESS RIGHT NOW: "+prompt+" }", personality, Callable(self, "_on_llama_response"))
 	append_to_chat_history(prompt)
 
 func handle_llama_queue():
 	if detected_bodies.size() > 0:
 		if detection_cooldown == true:
 			print("Chat Cool down ... Hold 'yer horses")
-				#print("cool down: ", PREPROMPT+body.name)
-				#append_to_chat_history(PREPROMPT+body.name)
 		else:
 			var body = detected_bodies.pop_back()
-			print("emptying from queue: ", body.name)
+			#print("emptying from queue: ", body.name)
 			#print_full_body_details(body)
-			print(PREPROMPT+body.name)
-			send_prompt_to_llama(PREPROMPT+body.name)
+			#print(PREPROMPT+body.name)
+			send_prompt_to_llama(PREPROMPT+body.name+" located at "+str(body.global_position))
 			clear_chat()
 			rich_text_label.add_text(body.name)
 			# start detection cooldown cycle
 			detection_cooldown = true
-			#detection_cooldown_timer.start()
 			
 func manage_speech():
 	
@@ -137,22 +145,6 @@ func _on_sense_body_shape_entered(_body_rid, body, _body_shape_index, _local_sha
 		print("appending: ",body.name)		
 		detected_bodies.append(body)
 		
-		#if detection_cooldown == true:
-			#print("cool down: ", PREPROMPT+body.name)
-			#append_to_chat_history(PREPROMPT+body.name)
-			#detected_body_index = detected_bodies.size()
-		#else:
-			#if detected_bodies.size() > 0:
-				#print("emptying from queue: ", body.name)
-				##print_full_body_details(body)
-				#print(PREPROMPT+body.name)
-				#send_prompt_to_llama(PREPROMPT+body.name)
-				#clear_chat()
-				#rich_text_label.add_text(body.name)
-				## start detection cooldown cycle
-				#detection_cooldown = true
-				#detection_cooldown_timer.start()
-				#detected_bodies.pop_back()	
 	
 func _on_sense_body_shape_exited(body_rid, body, body_shape_index, local_shape_index):
 	pass # Replace with function body.
@@ -166,12 +158,41 @@ func _on_llama_response(response, is_error):
 		rich_text_label.add_text(response)
 		append_to_chat_history(HIST_PREPEND+response)
 		talk(response) 
-		print("---------------- Chat History ----------------------")
-		print(chat_history)
-		print("Chars: ",chat_history.length())
-		print("Tokens: ",chat_history.length()/4.0)
-		print("---------------------------------------------------")
+		parse_response(response)
+		print("----------------- RESPONSE from LLM -----------------")
+		print(response)
+		print("-----------------------------------------------------")
+		#print("---------------- Chat History ----------------------")
+		#print(chat_history)
+		#print("Chars: ",chat_history.length())
+		#print("Tokens: ",chat_history.length()/4.0)
+		#print("---------------------------------------------------")
+func parse_response(response):
+	var x = 0
+	var y = 0
+	var regex = RegEx.new()
+	regex.compile("<cmd>\\s*move\\((-?\\d+),\\s*(-?\\d+)\\)\\s*</cmd>")
+	print("Parsing response")
+	var match = regex.search(response)
 
+	if match:
+		x = match.get_string(1).to_int()
+		y = match.get_string(2).to_int()
+
+	
+	
+# Function to parse and execute commands from a text
+func parse_and_execute_commands(text: String):
+	var regex = RegEx.new()
+	regex.compile("<cmd> move\\((\\d+),(\\d+)\\) </cmd>")
+	
+	var match = regex.search(text)
+	while match:
+		var x = match.get_string(1).to_int()
+		var y = match.get_string(2).to_int()
+		#move_to_position(Vector2(x, y))
+		#match = regex.search(text, match.get_end())
+		
 func clear_chat():
 	talking = false
 	chat_timer.stop()
@@ -230,8 +251,12 @@ func _on_chat_timer_timeout():
 func player():
 	pass
 
+func _on_text_edit_text_changed(text):
+	print(text) # Replace with function body.
+ 
 
-
-#func _on_detection_cooldown_timer_timeout():
-	#detection_cooldown = false # cooldown over
-#
+func _on_user_input_text_submitted(text):
+	print(text)
+	send_prompt_to_llama(text)
+	user_input.clear()
+	 # Replace with function body.
