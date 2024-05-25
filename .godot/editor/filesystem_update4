@@ -8,3 +8,4 @@ res://scripts/slime_monster.gd
 res://scenes/green_slime.tscn
 res://scripts/npc.gd
 res://scripts/movement.gd
+res://scripts/player.gd

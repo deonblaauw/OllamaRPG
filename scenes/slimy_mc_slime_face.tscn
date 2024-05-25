@@ -380,6 +380,7 @@ radius = 46.1736
 
 [node name="Slimy Mc SlimeFace" type="CharacterBody2D"]
 script = ExtResource("1_pwx2p")
+npc_type = "NPC"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -8)
@@ -405,6 +406,8 @@ position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_phiak")
 
 [node name="SearchTimer" type="Timer" parent="Target Detection Area"]
+wait_time = 10.0
+one_shot = true
 
 [node name="Navigation" type="Node2D" parent="."]
 

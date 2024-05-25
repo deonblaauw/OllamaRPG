@@ -464,6 +464,7 @@ radius = 47.0956
 
 [node name="Knight" type="CharacterBody2D"]
 script = ExtResource("1_3sa5a")
+npc_type = "Knight"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -12)
@@ -492,6 +493,8 @@ position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_nly2m")
 
 [node name="SearchTimer" type="Timer" parent="Target Detection Area"]
+wait_time = 10.0
+one_shot = true
 
 [connection signal="timeout" from="Navigation/Timer" to="." method="_on_timer_timeout"]
 [connection signal="body_entered" from="Target Detection Area" to="." method="_on_target_detection_area_body_entered"]

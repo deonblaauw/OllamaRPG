@@ -180,7 +180,7 @@ func parse_response(response):
 		y = match.get_string(2).to_int()
 
 	
-	
+
 # Function to parse and execute commands from a text
 func parse_and_execute_commands(text: String):
 	var regex = RegEx.new()

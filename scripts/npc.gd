@@ -5,6 +5,9 @@ extends CharacterBody2D
 @onready var navigation_agent_2d = $Navigation/NavigationAgent2D
 @onready var search_timer = $"Target Detection Area/SearchTimer"
 
+
+@export_enum("Monster", "NPC", "Knight") var npc_type: String
+
 var target = null #This sets player as target. remove later
 
 var speed = 50
@@ -20,12 +23,11 @@ var current_patrol_point_index = 0
 var current_search_point_index = 0
 var default_scale = Vector2.ZERO
 
-func _ready():
+func _ready():	
+	state = get_initial_state(npc_type)
 	target = null
 	searchTimerKick = true
-	state = "patrolling"
 	default_scale = target_detect_range.scale # save default scale of detection range
-	$AnimatedSprite2D.play("side_idle_right")
 
 func _physics_process(delta):
 	if state == "patrolling":
@@ -41,6 +43,7 @@ func _physics_process(delta):
 			print("start timer")
 			search_timer.start()
 			searchTimerKick = false
+			
 	elif state == "hunting":
 		target_detect_range.scale = target_detect_range.scale.lerp(Vector2(2, 2), 0.01)
 		agent_nav(navigation_agent_2d.target_position, delta)
@@ -50,6 +53,20 @@ func _physics_process(delta):
 	else:
 		animation_handler("side_idle_right")
 
+func get_initial_state(npc_type):
+	var initial_state = ""
+	
+	if npc_type == "Monster":
+		initial_state = "idle"
+	elif npc_type == "NPC":
+		initial_state = "patrolling"
+	elif npc_type == "Knight":
+		initial_state = "patrolling"
+	else:
+		initial_state = "idle"
+		
+	return initial_state
+		
 func target_reached(target_position, delta):
 	var dist = target_position - global_position
 	dist = dist.length()
@@ -68,11 +85,10 @@ func _on_target_detection_area_body_entered(body):
 	
 func _on_target_detection_area_body_exited(_body):
 
-	print("[NPC] Lost sight. Patrolling")
+	print("[NPC] Lost sight. Searching...")
 	target = null
-	state = "patrolling" # Replace with function body.
+	state = "searching" # Replace with function body.
 
-	
 func agent_nav(target_position, delta):
 	
 	var direction = target_position - global_position
@@ -143,9 +159,14 @@ func _on_timer_timeout():
 		navigation_agent_2d.target_position = target.global_position # Replace with function body.
 
 func _on_search_timer_timeout():
-	print("Can't find anything, going to sleep zzz...")
-	state = "idle" # Replace with function body.
-	searchTimerKick = true
+	searchTimerKick = true # reset search timer kick
+	search_timer.stop()
+	if npc_type == "Monster":
+		state = "idle" # Replace with function body.
+		print("Can't find anything, going to sleep zzz...")
+	else:
+		state = "patrolling"
+		print("Can't find anything, back to patrolling!")
 
 func npc():
 	pass

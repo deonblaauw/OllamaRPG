@@ -1,7 +1,7 @@
 [gd_scene load_steps=22 format=3 uid="uid://d3l2sb3hwxe2j"]
 
+[ext_resource type="Script" path="res://scripts/npc.gd" id="1_0e6c3"]
 [ext_resource type="Texture2D" uid="uid://oxmfv05lunhd" path="res://assets/sprites/characters/slime_purple.png" id="1_7w63u"]
-[ext_resource type="Script" path="res://scripts/slime_monster.gd" id="1_lesvt"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1gane"]
 atlas = ExtResource("1_7w63u")
@@ -201,8 +201,8 @@ radius = 9.05539
 radius = 47.0956
 
 [node name="Purple Slime" type="CharacterBody2D"]
-script = ExtResource("1_lesvt")
-search_points = [Vector2(-332, -20), Vector2(-76, 5)]
+script = ExtResource("1_0e6c3")
+npc_type = "Monster"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -12)

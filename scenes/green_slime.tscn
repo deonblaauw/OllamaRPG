@@ -1,6 +1,6 @@
 [gd_scene load_steps=22 format=3 uid="uid://ciyvf32jt5pne"]
 
-[ext_resource type="Script" path="res://scripts/slime_monster.gd" id="1_trde1"]
+[ext_resource type="Script" path="res://scripts/npc.gd" id="1_p5q4q"]
 [ext_resource type="Texture2D" uid="uid://cpa1dcevd7uu0" path="res://assets/sprites/characters/slime_green.png" id="2_8faqd"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ixrlm"]
@@ -201,8 +201,8 @@ radius = 9.05539
 radius = 47.0956
 
 [node name="Green Slime" type="CharacterBody2D"]
-script = ExtResource("1_trde1")
-search_points = [Vector2(-545, 153), Vector2(-466, 5)]
+script = ExtResource("1_p5q4q")
+npc_type = "Monster"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -12)

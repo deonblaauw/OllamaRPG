@@ -666,20 +666,26 @@ position = Vector2(-381, 154)
 [node name="Goofy Ghost" parent="." instance=ExtResource("6_2wwgf")]
 z_index = 1
 y_sort_enabled = true
-position = Vector2(-15, -100)
+position = Vector2(7, -54)
 patrol_points = [Vector2(-15, -100), Vector2(-35, 45)]
+search_points = [Vector2(-43, 6), Vector2(-199, 54)]
 
 [node name="Purple Slime Monster" parent="." instance=ExtResource("7_g70qj")]
 z_index = 1
 y_sort_enabled = true
-position = Vector2(-332, -20)
+position = Vector2(-329, -14)
+patrol_points = [Vector2(-400, -15), Vector2(-400, -140)]
+search_points = [Vector2(-330, -17), Vector2(-81, 2.08165e-12)]
 
 [node name="Serious Knight" parent="." instance=ExtResource("10_46g1y")]
-position = Vector2(-146, 229)
+position = Vector2(-38, 232)
 patrol_points = [Vector2(-127, 232), Vector2(126, 222)]
+search_points = [Vector2(-38, 103), Vector2(-5, 188)]
 
 [node name="Green Slime Monster" parent="." instance=ExtResource("10_7h65r")]
-position = Vector2(-545, 153)
+position = Vector2(-501, 131)
+patrol_points = [Vector2(-500, 95), Vector2(-645, 95)]
+search_points = [Vector2(-440, 50), Vector2(-550, 149)]
 
 [node name="Chest" parent="." instance=ExtResource("14_hkk3t")]
 position = Vector2(-430, 212)
