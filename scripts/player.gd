@@ -28,8 +28,9 @@ commands, you can't make up new commands:
 	{pickup(name)}
 	
 	When asked to walk or go somewhere, you need to output {move(x,y)}
-	where x and y are the location coordinates. You never move to unknown locations,
-	you only move to known locations you have seen before." 
+	where x and y are the location coordinates. You don't need to reach the EXACT
+	location when asked, it's acceptable to be within 10 units of the desired
+	location." 
 
 
 var chat_history = " "
@@ -64,8 +65,9 @@ func target_reached(target_position, delta):
 		autonav = false
 		
 func send_prompt_to_llama(prompt):
-	llama_api.send_prompt("{HISTORY: "+chat_history+" }"
-	+ "{RECENT EVENT YOU NEED TO ADDRESS RIGHT NOW: "+prompt+" }", personality, Callable(self, "_on_llama_response"))
+	llama_api.send_prompt("{PAST EVENTS: "+chat_history+" }"
+	+ "{CURRENT LOCATION: " + str(global_position) + " }"
+	+ "{RECENT EVENT: "+prompt+" }", personality, Callable(self, "_on_llama_response"))
 	append_to_chat_history(prompt)
 
 func handle_llama_queue():
