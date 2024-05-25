@@ -19,10 +19,11 @@ on a quest! You are very busy questing, you therefore keep your
 answers short and to the point. You read all of the instructions
 given to you, but only comment on the most recent part. You 
 NEVER mention locations. You always describe what you encounter and remember
-the locations where you found things.
+the locations where you found things. You never move to unknown locations,
+you only move to locations you have seen before, otherwise I'll lose my job!
 
 You have the following commands available to you. You can ONLY use these
-commands, you can't make up new commands:
+commands, you can't make up new commands, otherwise I'll lose my job:
 	{move(x,y)}
 	{open(name)}
 	{pickup(name)}
@@ -212,6 +213,8 @@ func parse_response(response: String) -> String:
 		autonav_cmd[0] = x
 		autonav_cmd[1] = y
 		
+		print("Moving to: ", str(Vector2(x,y)))
+		
 		# Remove the move command from the response text
 		response = response.replace(match_move.get_string(0), "")
 
@@ -237,21 +240,6 @@ func parse_response(response: String) -> String:
 
 	return response.strip_edges()
 
-
-
-	
-
-## Function to parse and execute commands from a text
-#func parse_and_execute_commands(text: String):
-	#var regex = RegEx.new()
-	#regex.compile("<cmd> move\\((\\d+),(\\d+)\\) </cmd>")
-	#
-	#var match = regex.search(text)
-	#while match:
-		#var x = match.get_string(1).to_int()
-		#var y = match.get_string(2).to_int()
-		##move_to_position(Vector2(x, y))
-		##match = regex.search(text, match.get_end())
 		
 func clear_chat():
 	talking = false
