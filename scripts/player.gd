@@ -124,7 +124,8 @@ func player_movement(_delta):
 	else:
 		velocity.x = 0
 		velocity.y = 0
-		animation_handler("idle")
+		if autonav == false:
+			animation_handler("idle")
 		
 	move_and_slide() #< Godot buil-in
 		
