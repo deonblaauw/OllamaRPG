@@ -35,7 +35,12 @@ var chat_history = " "
 var HISTORY_TOKENS = 2000 # roughly amount of tokens to keep in history buffer
 
 var talking = false
-const speed = 100
+const speed = 100 # manal control
+
+var autonav_speed = 500
+var autonav_acceleration = 5
+var autonav = false
+var autonav_cmd = Vector2(0, 0)
 
 func _ready():
 	rich_text_label.add_theme_font_size_override("normal_font_size", 8)
@@ -45,8 +50,18 @@ func _physics_process(delta):
 	player_movement(delta)
 	handle_llama_queue()
 	manage_speech()
-		
 	
+	if autonav == true:
+		agent_nav( autonav_cmd, delta)
+		target_reached( autonav_cmd, delta)
+		
+func target_reached(target_position, delta):
+	var dist = target_position - global_position
+	dist = dist.length()
+	if dist < 20:
+		print("Target reached")
+		autonav = false
+		
 func send_prompt_to_llama(prompt):
 	llama_api.send_prompt("{HISTORY: "+chat_history+" }"
 	+ "{RECENT EVENT YOU NEED TO ADDRESS RIGHT NOW: "+prompt+" }", personality, Callable(self, "_on_llama_response"))
@@ -174,24 +189,27 @@ func parse_response(response):
 	regex.compile("<cmd>\\s*move\\((-?\\d+),\\s*(-?\\d+)\\)\\s*</cmd>")
 	print("Parsing response")
 	var match = regex.search(response)
-
+	
 	if match:
+		autonav = true
 		x = match.get_string(1).to_int()
 		y = match.get_string(2).to_int()
-
+		autonav_cmd[0] = x
+		autonav_cmd[1] = y
+		
 	
 
-# Function to parse and execute commands from a text
-func parse_and_execute_commands(text: String):
-	var regex = RegEx.new()
-	regex.compile("<cmd> move\\((\\d+),(\\d+)\\) </cmd>")
-	
-	var match = regex.search(text)
-	while match:
-		var x = match.get_string(1).to_int()
-		var y = match.get_string(2).to_int()
-		#move_to_position(Vector2(x, y))
-		#match = regex.search(text, match.get_end())
+## Function to parse and execute commands from a text
+#func parse_and_execute_commands(text: String):
+	#var regex = RegEx.new()
+	#regex.compile("<cmd> move\\((\\d+),(\\d+)\\) </cmd>")
+	#
+	#var match = regex.search(text)
+	#while match:
+		#var x = match.get_string(1).to_int()
+		#var y = match.get_string(2).to_int()
+		##move_to_position(Vector2(x, y))
+		##match = regex.search(text, match.get_end())
 		
 func clear_chat():
 	talking = false
@@ -260,3 +278,41 @@ func _on_user_input_text_submitted(text):
 	send_prompt_to_llama(text)
 	user_input.clear()
 	 # Replace with function body.
+
+
+############################
+
+func agent_nav(target_position, delta):
+	
+	var direction = target_position - global_position
+	direction = direction.normalized()
+	
+	velocity = velocity.lerp(direction * autonav_speed , autonav_acceleration * delta)
+	
+	move_and_slide()
+
+	# Round velocity to 4 decimal places
+	var vel = velocity
+	vel.x = round_to_decimal_places(vel.x, 1)
+	vel.y = round_to_decimal_places(vel.y, 1)
+
+	# Update the animation based on motion
+	update_animation(vel)
+	
+# Code that updates animation by calling animation handler
+func update_animation(vel):
+	if vel.x > 0:
+		animation_handler("right")
+	elif vel.x < 0:
+		animation_handler("left") # (-0.833, 0.006)
+	elif vel.y > 0:
+		animation_handler("down")
+	elif vel.y < 0: 
+		animation_handler("up") # (0.034, -0.833)
+	else:
+		animation_handler("idle")
+		
+# Helper function to round a float to a specific number of decimal places
+func round_to_decimal_places(value, places):
+	var factor = pow(10, places)
+	return round(value * factor) / factor
