@@ -3,14 +3,19 @@ extends Node
 @export var local_url: String = "http://localhost:11434/v1/chat/completions"
 @export var openai_url: String = "https://api.openai.com/v1/chat/completions"
 @export var local_headers = ["Content-Type: application/json"]
-@export var OPENAI_API: String = ""  # Enter your OpenAI API key in the Inspector
 
 @export_enum("llama2", "llama3", "OpenAI GPT-4", "OpenAI GPT-4-turbo", "OpenAI GPT-3.5-turbo-0125") var llm_type: String
 
 var request: HTTPRequest
 var callback: Callable
 
+var OPENAI_API = ""
+
 func _ready():
+	var config = ConfigFile.new()
+	if config.load("res://config.cfg") == OK:
+		OPENAI_API = config.get_value("secrets", "OPENAI_API")
+
 	print("LLM API Initialized")
 	request = HTTPRequest.new()
 	add_child(request)

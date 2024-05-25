@@ -13,4 +13,9 @@ You will need the following to run this project:
 
 `brew install espeak`
 
+## OpenAI
+
+If you want to use any of the OpenAI models, you need to rename the `sample.config.cfg` file to `config.cfg`, and place your API key in this file.
+
 ![alt text](image.png)
+
