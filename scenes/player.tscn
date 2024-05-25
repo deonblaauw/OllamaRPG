@@ -436,8 +436,7 @@ metadata/player = true
 
 [node name="LlamaAPI" type="Node" parent="."]
 script = ExtResource("4_6tmtv")
-OPENAI_API = "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"
-llm_type = "llama3"
+llm_type = "OpenAI GPT-4"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 top_level = true
