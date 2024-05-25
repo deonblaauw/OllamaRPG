@@ -5,7 +5,6 @@ extends CharacterBody2D
 @onready var rich_text_label = $Control/RichTextLabel
 @onready var user_input = $Control/UserInput
 
-
 #@onready var detection_cooldown_timer = $DetectionCooldownTimer
 var detection_cooldown = false
 var detected_bodies = []
@@ -19,15 +18,16 @@ const HIST_PREPEND = " : "
 on a quest! You are very busy questing, you therefore keep your 
 answers short and to the point. You read all of the instructions
 given to you, but only comment on the most recent part. You 
-NEVER mention locations.
+NEVER mention locations. You always describe what you encounter and remember
+the locations where you found things.
 
 You have the following commands available to you. You can ONLY use these
 commands, you can't make up new commands:
-	<cmd>move(x,y)</cmd>
-	<cmd>open(name)</cmd>
-	<cmd>pickup(name)</cmd>
+	{move(x,y)}
+	{open(name)}
+	{pickup(name)}
 	
-	When asked to walk or go somewhere, you need to output <cmd>move(x,y)</cmd>
+	When asked to walk or go somewhere, you need to output {move(x,y)}
 	where x and y are the location coordinates. You never move to unknown locations,
 	you only move to known locations you have seen before." 
 
@@ -182,19 +182,22 @@ func _on_llama_response(response, is_error):
 		print("-----------------------------------------------------")
 		#print("---------------- Chat History ----------------------")
 		#print(chat_history)
-		#print("Chars: ",chat_history.length())
-		#print("Tokens: ",chat_history.length()/4.0)
+		print("Chars: ",chat_history.length())
+		print("Tokens: ",chat_history.length()/4.0)
 		#print("---------------------------------------------------")
+
+
 func parse_response(response: String) -> String:
-	var x = 0
-	var y = 0
+	var x = 0.0
+	var y = 0.0
 	var regex_move = RegEx.new()
 	var regex_pickup = RegEx.new()
 	var regex_open = RegEx.new()
 
-	regex_move.compile("<cmd>\\s*move\\((-?\\d+\\.?\\d*),\\s*(-?\\d+\\.?\\d*)\\)\\s*</cmd>")
-	regex_pickup.compile("<cmd>\\s*pickup\\(([^)]+)\\)\\s*</cmd>")
-	regex_open.compile("<cmd>\\s*open\\(([^)]+)\\)\\s*</cmd>")
+	# Updated regex to support curly braces and floating-point numbers
+	regex_move.compile("{\\s*move\\((-?\\d+\\.?\\d*),\\s*(-?\\d+\\.?\\d*)\\)\\s*}")
+	regex_pickup.compile("{\\s*pickup\\(([^)]+)\\)\\s*}")
+	regex_open.compile("{\\s*open\\(([^)]+)\\)\\s*}")
 
 	print("Parsing response")
 
@@ -202,8 +205,8 @@ func parse_response(response: String) -> String:
 	var match_move = regex_move.search(response)
 	if match_move:
 		autonav = true
-		x = match_move.get_string(1).to_int()
-		y = match_move.get_string(2).to_int()
+		x = match_move.get_string(1).to_float()
+		y = match_move.get_string(2).to_float()
 		autonav_cmd[0] = x
 		autonav_cmd[1] = y
 		
@@ -231,6 +234,7 @@ func parse_response(response: String) -> String:
 		response = response.replace(match_open.get_string(0), " Trying to open the " + item_to_open)
 
 	return response.strip_edges()
+
 
 
 	
