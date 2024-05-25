@@ -24,7 +24,7 @@ func send_prompt(user_prompt: String, system_prompt: String, loc_callback: Calla
 		{"role": "user", "content": user_prompt}
 	]
 	print("**********************************")
-	print("Sending to LLM")
+	print("Sending to ", llm_type)
 	print(messages)
 	print("**********************************")
 	
@@ -36,7 +36,6 @@ func send_prompt(user_prompt: String, system_prompt: String, loc_callback: Calla
 	else:
 		var openai_headers = ["Content-Type: application/json", "Authorization: Bearer " + OPENAI_API]
 		error = request.request(openai_url, openai_headers, HTTPClient.METHOD_POST, body)
-		print("GPT-4")
 	
 	if error != OK:
 		callback.call("Error: Request failed", true)

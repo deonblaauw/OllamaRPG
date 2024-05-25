@@ -661,7 +661,7 @@ layer_2/tile_data = PackedInt32Array(-393230, 1, 0, -327694, 1, 0, -262158, 1, 0
 
 [node name="George" parent="." instance=ExtResource("5_6170o")]
 y_sort_enabled = true
-position = Vector2(-312, 348)
+position = Vector2(355, 110)
 
 [node name="Goofy Ghost" parent="." instance=ExtResource("6_2wwgf")]
 z_index = 1
@@ -697,7 +697,7 @@ position = Vector2(169, -121)
 position = Vector2(-334, 88)
 
 [node name="Coin3" parent="." instance=ExtResource("8_nyht3")]
-position = Vector2(303, 36)
+position = Vector2(370, 17)
 
 [node name="Bed" parent="." instance=ExtResource("11_cax00")]
 position = Vector2(264, 63)

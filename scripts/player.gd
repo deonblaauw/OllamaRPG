@@ -19,7 +19,8 @@ const HIST_PREPEND = " : "
 on a quest! You are very busy questing, you therefore keep your 
 answers short and to the point. You read all of the instructions
 given to you, but only comment on the most recent part. You 
-NEVER mention locations. 
+NEVER mention locations. When you encounter a new character, you
+always greet them to see if they are friendly or not.
 
 You have the following commands available to you:
 	<cmd>move(x,y)</cmd>
@@ -171,10 +172,11 @@ func _on_llama_response(response, is_error):
 	if is_error:
 		rich_text_label.add_text(response + ". Ollama might be down")
 	else:
-		rich_text_label.add_text(response)
+		
 		append_to_chat_history(HIST_PREPEND+response)
-		talk(response) 
-		parse_response(response)
+		var resp = parse_response(response)
+		rich_text_label.add_text(resp)
+		talk(resp) 
 		print("----------------- RESPONSE from LLM -----------------")
 		print(response)
 		print("-----------------------------------------------------")
@@ -183,21 +185,54 @@ func _on_llama_response(response, is_error):
 		#print("Chars: ",chat_history.length())
 		#print("Tokens: ",chat_history.length()/4.0)
 		#print("---------------------------------------------------")
-func parse_response(response):
+func parse_response(response: String) -> String:
 	var x = 0
 	var y = 0
-	var regex = RegEx.new()
-	regex.compile("<cmd>\\s*move\\((-?\\d+),\\s*(-?\\d+)\\)\\s*</cmd>")
+	var regex_move = RegEx.new()
+	var regex_pickup = RegEx.new()
+	var regex_open = RegEx.new()
+
+	regex_move.compile("<cmd>\\s*move\\((-?\\d+\\.?\\d*),\\s*(-?\\d+\\.?\\d*)\\)\\s*</cmd>")
+	regex_pickup.compile("<cmd>\\s*pickup\\(([^)]+)\\)\\s*</cmd>")
+	regex_open.compile("<cmd>\\s*open\\(([^)]+)\\)\\s*</cmd>")
+
 	print("Parsing response")
-	var match = regex.search(response)
-	
-	if match:
+
+	# Process move command
+	var match_move = regex_move.search(response)
+	if match_move:
 		autonav = true
-		x = match.get_string(1).to_int()
-		y = match.get_string(2).to_int()
+		x = match_move.get_string(1).to_int()
+		y = match_move.get_string(2).to_int()
 		autonav_cmd[0] = x
 		autonav_cmd[1] = y
 		
+		# Remove the move command from the response text
+		response = response.replace(match_move.get_string(0), "")
+
+	# Process pickup command
+	var match_pickup = regex_pickup.search(response)
+	if match_pickup:
+		var item_to_pickup = match_pickup.get_string(1)
+		# Handle the pickup logic here, e.g., add item_to_pickup to inventory
+		print("Picking up: ", item_to_pickup)
+		
+		# Remove the pickup command from the response text
+		response = response.replace(match_pickup.get_string(0), " I just picked up a " + item_to_pickup)
+
+	# Process open command
+	var match_open = regex_open.search(response)
+	if match_open:
+		var item_to_open = match_open.get_string(1)
+		# Handle the open logic here, e.g., open item_to_open
+		print("Opening: ", item_to_open)
+		
+		# Remove the open command from the response text
+		response = response.replace(match_open.get_string(0), " Trying to open the " + item_to_open)
+
+	return response.strip_edges()
+
+
 	
 
 ## Function to parse and execute commands from a text
