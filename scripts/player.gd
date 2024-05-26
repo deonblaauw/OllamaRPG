@@ -13,6 +13,8 @@ var detected_bodies_index = 1
 const PREPROMPT = ". You find a "
 const POSTPROMPT = ""
 const HIST_PREPEND = " : "
+const WAKEUP_INSTRUCT = "
+You find yourself outside, ready to explore!"
 
 @export var personality: String = "You are a brave adventurer 
 on a quest! You are very busy questing, you therefore keep your 
@@ -29,8 +31,16 @@ commands, you can't make up new commands, otherwise I'll lose my job:
 	{pickup(name)}
 	
 	When asked to walk or go somewhere, you need to output {move(x,y)}
-	where x and y are the location coordinates. You don't need to reach the EXACT
-	location when asked, it's acceptable to be within 10 units of the desired
+	where x and y are the location coordinates. You will be given your current position,
+	and when asked to move, you need to add at least 150 units to either your x or y coordinates,
+	depending on the direction you wish to travel.
+	
+	When asked to move left or West, x will reduce in value and eventually become negative or more negative.
+	When asked to move right or East, x will increase in value and eventually become positive or more positive.
+	When asked to move up or North, y will reduce in value and eventually become negative or more negative.
+	When asked to move down or South, y will increase in value and eventually become positive or more positive.
+	
+	You don't need to reach the EXACT location when asked, it's acceptable to be within 10 units of the desired
 	location." 
 
 
@@ -48,6 +58,7 @@ var autonav_cmd = Vector2(0, 0)
 func _ready():
 	rich_text_label.add_theme_font_size_override("normal_font_size", 8)
 	animation_handler("idle")
+	send_prompt_to_llama(WAKEUP_INSTRUCT)
 
 func _physics_process(delta):		
 	player_movement(delta)

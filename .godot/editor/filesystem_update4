@@ -1,8 +1,8 @@
+res://scenes/player.tscn
+res://scripts/llama_api.gd
 res://scenes/world.tscn
 res://scenes/knight.tscn
-res://scenes/player.tscn
 res://scenes/purple_slime.tscn
 res://scenes/green_slime.tscn
 res://scenes/slimy_mc_slime_face.tscn
 res://scripts/player.gd
-res://scripts/llama_api.gd

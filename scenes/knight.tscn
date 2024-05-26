@@ -471,6 +471,7 @@ position = Vector2(0, -12)
 sprite_frames = SubResource("SpriteFrames_spvug")
 animation = &"side_idle_right"
 autoplay = "side_walk_right"
+frame_progress = 0.419024
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -8)

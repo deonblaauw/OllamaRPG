@@ -4,7 +4,14 @@ extends Node
 @export var openai_url: String = "https://api.openai.com/v1/chat/completions"
 @export var local_headers = ["Content-Type: application/json"]
 
-@export_enum("llama2", "llama3", "OpenAI GPT-4", "OpenAI GPT-4-turbo", "OpenAI GPT-3.5-turbo-0125") var llm_type: String
+@export_enum(
+	"command-r",
+	"llama2", 
+	"llama3", 
+"OpenAI GPT-4o",
+"OpenAI GPT-4", 
+"OpenAI GPT-4-turbo", 
+"OpenAI GPT-3.5-turbo-0125") var llm_type: String
 
 var request: HTTPRequest
 var callback: Callable
@@ -36,7 +43,7 @@ func send_prompt(user_prompt: String, system_prompt: String, loc_callback: Calla
 	var body = JSON.stringify({"messages": messages, "model": get_model()})
 	var error = -1
 	
-	if llm_type == "llama2" or llm_type == "llama3":
+	if llm_type == "llama2" or llm_type == "llama3" or llm_type == "command-r":
 		error = request.request(local_url, local_headers, HTTPClient.METHOD_POST, body)
 	else:
 		var openai_headers = ["Content-Type: application/json", "Authorization: Bearer " + OPENAI_API]
@@ -69,10 +76,14 @@ func _on_request_completed(_result, response_code, _headers, body):
 
 func get_model() -> String:
 	match llm_type:
+		"command-r":
+			return "command-r"
 		"llama2":
 			return "llama2"
 		"llama3":
 			return "llama3"
+		"OpenAI GPT-4o":
+			return "gpt-4o"
 		"OpenAI GPT-4":
 			return "gpt-4"
 		"OpenAI GPT-4-turbo":
