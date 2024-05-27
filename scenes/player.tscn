@@ -496,6 +496,25 @@ one_shot = true
 wait_time = 2.5
 autostart = true
 
+[node name="Command Display" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CommandDisplay" type="Label" parent="Command Display"]
+offset_left = 9.0
+offset_top = -21.0
+offset_right = 131.0
+offset_bottom = 2.0
+theme_override_fonts/font = ExtResource("3_m3a4f")
+theme_override_font_sizes/font_size = 8
+autowrap_mode = 3
+
+[node name="cmdDispTimer" type="Timer" parent="Command Display"]
+wait_time = 5.0
+one_shot = true
+
 [connection signal="area_entered" from="Perception/Sense" to="." method="_on_sense_area_entered"]
 [connection signal="area_shape_entered" from="Perception/Sense" to="." method="_on_sense_area_shape_entered"]
 [connection signal="body_entered" from="Perception/Sense" to="." method="_on_sense_body_entered"]
@@ -504,3 +523,4 @@ autostart = true
 [connection signal="text_submitted" from="Control/UserInput" to="." method="_on_user_input_text_submitted"]
 [connection signal="timeout" from="ChatTimer" to="." method="_on_chat_timer_timeout"]
 [connection signal="timeout" from="PositionResponseTimer" to="." method="_on_position_response_timer_timeout"]
+[connection signal="timeout" from="Command Display/cmdDispTimer" to="." method="_on_cmd_disp_timer_timeout"]

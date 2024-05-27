@@ -5,10 +5,8 @@ extends CharacterBody2D
 @onready var rich_text_label = $Control/RichTextLabel
 @onready var user_input = $Control/UserInput
 @onready var position_response_timer = $PositionResponseTimer
-
-var detection_cooldown = false
-#var detected_bodies = []
-#var detected_bodies_index = 1
+@onready var command_display = $"Command Display/CommandDisplay"
+@onready var cmd_disp_timer = $"Command Display/cmdDispTimer"
 
 const OBJECT_PREPROMPT = ". You find a "
 const POSTPROMPT = ""
@@ -50,7 +48,7 @@ location.
 
 When asked to report your current location use the following: {current_location(x,y)}, 
 where the x and y values are your current x and y values. You ONLY send {current_location(x,y)} when
-reporting location, nothing else, otherwise I'll lose my job!!
+reporting location for yourself, and only yourself, nothing else, otherwise I'll lose my job!!
 """
 
 var chat_history = " "
@@ -202,7 +200,6 @@ func _on_sense_body_shape_exited(body_rid, body, body_shape_index, local_shape_i
 
 func _on_llama_response(response, is_error):
 	llm_busy = false
-	detection_cooldown = false # cooldown over
 	rich_text_label.clear()
 	if is_error:
 		rich_text_label.add_text(response + ". Ollama might be down")
@@ -238,6 +235,7 @@ func parse_response(response: String) -> String:
 	# Process move command
 	var match_move = regex_move.search(response)
 	if match_move:
+		
 		autonav = true
 		x = match_move.get_string(1).to_float()
 		y = match_move.get_string(2).to_float()
@@ -245,6 +243,8 @@ func parse_response(response: String) -> String:
 		autonav_cmd[1] = y
 		
 		print("[Player] Moving to: ", str(Vector2(x,y)))
+		command_display.text = "move("+str(x)+","+str(y)+")"
+		cmd_disp_timer.start()
 		
 		# Remove the move command from the response text
 		response = response.replace(match_move.get_string(0), "")
@@ -255,6 +255,8 @@ func parse_response(response: String) -> String:
 		var item_to_pickup = match_pickup.get_string(1)
 		# Handle the pickup logic here, e.g., add item_to_pickup to inventory
 		print("[Player] Picking up: ", item_to_pickup)
+		command_display.text = "pickup("+item_to_pickup+")"
+		cmd_disp_timer.start()
 		
 		# Remove the pickup command from the response text
 		response = response.replace(match_pickup.get_string(0), " I just picked up a " + item_to_pickup)
@@ -262,9 +264,12 @@ func parse_response(response: String) -> String:
 	# Process open command
 	var match_open = regex_open.search(response)
 	if match_open:
+		
 		var item_to_open = match_open.get_string(1)
 		# Handle the open logic here, e.g., open item_to_open
 		print("[Player] Opening: ", item_to_open)
+		command_display.text = "open("+item_to_open+")"
+		cmd_disp_timer.start()
 		
 		# Remove the open command from the response text
 		response = response.replace(match_open.get_string(0), " Trying to open the " + item_to_open)
@@ -276,6 +281,8 @@ func parse_response(response: String) -> String:
 		y = match_curr_loc.get_string(2).to_float()
 		
 		print("[Player] Current Location: ", str(Vector2(x,y)))
+		command_display.text = "curr_loc("+str(x)+","+str(y)+")"
+		cmd_disp_timer.start()
 		
 		# Remove the move command from the response text
 		response = response.replace(match_curr_loc.get_string(0), "")
@@ -287,7 +294,6 @@ func clear_chat():
 	chat_timer.stop()
 	DisplayServer.tts_stop()
 	rich_text_label.clear()
-	detection_cooldown = false
 	tts_busy = false
 	tts_queue.clear()
 
@@ -395,3 +401,7 @@ func _on_position_response_timer_timeout():
 		send_prompt_to_llama(tmp)
 		
 
+
+
+func _on_cmd_disp_timer_timeout():
+	command_display.text = ""
