@@ -492,6 +492,10 @@ offset_bottom = 29.0
 wait_time = 2.0
 one_shot = true
 
+[node name="PositionResponseTimer" type="Timer" parent="."]
+wait_time = 2.5
+autostart = true
+
 [connection signal="area_entered" from="Perception/Sense" to="." method="_on_sense_area_entered"]
 [connection signal="area_shape_entered" from="Perception/Sense" to="." method="_on_sense_area_shape_entered"]
 [connection signal="body_entered" from="Perception/Sense" to="." method="_on_sense_body_entered"]
@@ -499,3 +503,4 @@ one_shot = true
 [connection signal="body_shape_exited" from="Perception/Sense" to="." method="_on_sense_body_shape_exited"]
 [connection signal="text_submitted" from="Control/UserInput" to="." method="_on_user_input_text_submitted"]
 [connection signal="timeout" from="ChatTimer" to="." method="_on_chat_timer_timeout"]
+[connection signal="timeout" from="PositionResponseTimer" to="." method="_on_position_response_timer_timeout"]

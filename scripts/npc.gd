@@ -40,7 +40,7 @@ func _physics_process(delta):
 		update_search_points(search_points[current_search_point_index],search_points)
 		
 		if searchTimerKick == true:
-			print("start timer")
+			print("Searching ...")
 			search_timer.start()
 			searchTimerKick = false
 			
@@ -79,13 +79,13 @@ func _on_target_detection_area_body_entered(body):
 	if body.has_method("player"):
 		target = body
 		state = "hunting"
-		print("[NPC] Contact made with player!!") # Replace with function body.
+		print("Contact made with player!!") # Replace with function body.
 	
 	#print_body_details(body)
 	
 func _on_target_detection_area_body_exited(_body):
 
-	print("[NPC] Lost sight. Searching...")
+	print("Lost sight. Searching...")
 	target = null
 	state = "searching" # Replace with function body.
 
