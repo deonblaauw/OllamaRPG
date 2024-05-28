@@ -4,6 +4,8 @@ res://scenes/player.tscn
 res://scenes/purple_slime.tscn
 res://scenes/green_slime.tscn
 res://scenes/slimy_mc_slime_face.tscn
-res://scripts/llama_api.gd
 res://scripts/player.gd
+res://scenes/chest.tscn
+res://scripts/chest.gd
+res://scenes/world.gd
 res://scripts/npc.gd

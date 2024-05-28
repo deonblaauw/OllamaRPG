@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal player_command
+
 @onready var llama_api = $LlamaAPI
 @onready var chat_timer = $ChatTimer
 @onready var rich_text_label = $Control/RichTextLabel
@@ -31,6 +33,7 @@ You have the following commands available to you. You can ONLY use these
 commands, you can't make up new commands, otherwise I'll lose my job:
 	{move(x,y)}
 	{open(name)}
+	{close(name)}
 	{pickup(name)}
 	
 When asked to walk or go somewhere, you need to output {move(x,y)}
@@ -67,6 +70,8 @@ var autonav_cmd = Vector2(0, 0)
 
 var llm_queue = []
 var llm_busy = false
+
+var _body = null
 
 func _ready():
 	rich_text_label.add_theme_font_size_override("normal_font_size", 8)
@@ -193,7 +198,15 @@ func _on_sense_body_shape_entered(_body_rid, body, _body_shape_index, _local_sha
 	if (body.name != "TileMap") and (!body.has_method("player")):
 		print("[Player] found: ",body.name)		
 		#detected_bodies.append(body)
-		send_prompt_to_llama(OBJECT_PREPROMPT+body.name+" located at "+str(body.global_position))
+		var x = round_to_decimal_places(body.global_position.x, 1)
+		var y = round_to_decimal_places(body.global_position.y, 1)
+		send_prompt_to_llama(OBJECT_PREPROMPT+body.name+" located at "+"("+str(x)+","+str(y)+")")
+		_body = body
+		
+	
+	if _body != null:
+		print(_body.name)
+		
 		
 func _on_sense_body_shape_exited(body_rid, body, body_shape_index, local_shape_index):
 	pass # Replace with function body.
@@ -231,7 +244,9 @@ func parse_response(response: String) -> String:
 	regex_curr_loc.compile("{\\s*current_location\\((-?\\d+\\.?\\d*),\\s*(-?\\d+\\.?\\d*)\\)\\s*}")
 	
 	print("[Player] Parsing LLM response.")
-
+	#player_command.emit(response)
+	emit_signal("player_command",response)
+	
 	# Process move command
 	var match_move = regex_move.search(response)
 	if match_move:
@@ -405,3 +420,4 @@ func _on_position_response_timer_timeout():
 
 func _on_cmd_disp_timer_timeout():
 	command_display.text = ""
+

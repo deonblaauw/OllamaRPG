@@ -503,6 +503,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="CommandDisplay" type="Label" parent="Command Display"]
+layout_mode = 0
 offset_left = 9.0
 offset_top = -21.0
 offset_right = 131.0

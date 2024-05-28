@@ -711,3 +711,5 @@ position = Vector2(264, 63)
 [node name="Table" parent="." instance=ExtResource("12_3vsho")]
 z_index = 2
 position = Vector2(160, -41)
+
+[connection signal="player_command" from="George" to="Chest" method="_on_george_player_command"]

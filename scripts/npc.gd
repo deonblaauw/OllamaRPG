@@ -53,14 +53,14 @@ func _physics_process(delta):
 	else:
 		animation_handler("side_idle_right")
 
-func get_initial_state(npc_type):
+func get_initial_state(_npc_type):
 	var initial_state = ""
 	
-	if npc_type == "Monster":
+	if _npc_type == "Monster":
 		initial_state = "idle"
-	elif npc_type == "NPC":
+	elif _npc_type == "NPC":
 		initial_state = "patrolling"
-	elif npc_type == "Knight":
+	elif _npc_type == "Knight":
 		initial_state = "patrolling"
 	else:
 		initial_state = "idle"
