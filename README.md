@@ -10,7 +10,7 @@ You will need the following to run this project:
 - espeak 
 - [Ollama](https://ollama.com/download/mac)
 
-
+You can install espeak on the Mac using Brew:
 `brew install espeak`
 
 ## Ollama
@@ -36,6 +36,12 @@ The following OpenAI models are supported:
 ## Interaction
 
 You can control the main player character, George, by using keyboard arrows or WASD keys. You can move George around in the game world, and have him discover items or NPCs. You can also talk to George by typing questions in the search box. You can ask George where he is, what he's doing and why. You can also ask George to walk somewhere by giving a location, or by asking him to walk to a previously discovered place or item.
+
+Currently, George understands the following commands:
+- Move / Walk somewhere. You can ask George to move / walk/ run in any direction. He understands North, East, South and West, and should also understand up, left, right and down
+- Open. George can open and close chest
+
+Sometimes George will get scared if he finds a monster. When this happens, George might decide to run away to safety, and will normally run to his bed, assuming he's found his bed!
 
 ![alt text](image.png)
 
