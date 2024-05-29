@@ -41,7 +41,7 @@ Currently, George understands the following commands:
 - Move / Walk somewhere. You can ask George to move / walk/ run in any direction. He understands North, East, South and West, and should also understand up, left, right and down
 - Open. George can open and close chests in the world. They are currently still empty though
 
-Sometimes George will get scared if he finds a monster. When this happens, George might decide to run away to safety, and will normally run to his bed, assuming he's found his bed!
+Sometimes George will get scared if he finds a monster. When this happens, George might decide to run away to safety, and will normally run to his bed, assuming of course that he's already found his bed and knows where it is!
 
 ![alt text](image.png)
 
