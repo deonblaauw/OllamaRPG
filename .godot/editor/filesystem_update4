@@ -5,3 +5,4 @@ res://scenes/purple_slime.tscn
 res://scenes/green_slime.tscn
 res://scenes/slimy_mc_slime_face.tscn
 res://scenes/chest.tscn
+res://scripts/player.gd

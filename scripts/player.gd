@@ -108,10 +108,13 @@ func handle_llama_queue():
 		return
 	
 	llm_busy = true
+	var x = round_to_decimal_places(global_position.x, 0)
+	var y = round_to_decimal_places(global_position.y, 0)
+	
 	var messages = llm_queue.pop_front()
 	llama_api.send_prompt(
 		"{PAST EVENTS: "+chat_history+" }"
-		+ "{CURRENT LOCATION: " + str(global_position) + " }"
+		+ "{CURRENT LOCATION: " +"("+str(x)+","+str(y)+ " }"
 		+ "{RECENT EVENT: "+messages[1]["content"]+" }", 
 		personality, 
 		Callable(self, "_on_llama_response")
@@ -198,8 +201,8 @@ func _on_sense_body_shape_entered(_body_rid, body, _body_shape_index, _local_sha
 	if (body.name != "TileMap") and (!body.has_method("player")):
 		print("[Player] found: ",body.name)		
 		#detected_bodies.append(body)
-		var x = round_to_decimal_places(body.global_position.x, 1)
-		var y = round_to_decimal_places(body.global_position.y, 1)
+		var x = round_to_decimal_places(body.global_position.x, 0)
+		var y = round_to_decimal_places(body.global_position.y, 0)
 		send_prompt_to_llama(OBJECT_PREPROMPT+body.name+" located at "+"("+str(x)+","+str(y)+")")
 		_body = body
 		
@@ -409,8 +412,8 @@ func _on_position_response_timer_timeout():
 
 	if pos_update_once == true:
 		pos_update_once = false
-		var x = round(global_position.x)
-		var y = round(global_position.y)
+		var x = round_to_decimal_places(global_position.x,0)
+		var y = round_to_decimal_places(global_position.y,0)
 		var tmp = POS_UPDATE_MSG+"("+str(x)+","+str(y)+")"
 		print("[Player] Sending position to LLM: ",tmp)
 		send_prompt_to_llama(tmp)
