@@ -4,10 +4,7 @@ extends Node
 signal ElevenLabs_generated_speech
 
 # TTS provider selection (0: ESpeak, 1: Eleven Labs)
-#@export var tts_provider: int = 0  # 0: ESpeak, 1: Eleven Labs
-@export_enum(
-	"ESpeak",
-	"Elevan Labs") var tts_provider: String
+@export_enum("ESpeak", "Eleven Labs") var tts_provider: String
 
 # Whether to use audio stream endpoint for Eleven Labs
 @export var use_stream_mode: bool = false
@@ -85,10 +82,10 @@ func talk(text: String):
 			use_espeak(text)  # Fallback to ESpeak TTS
 	else:  # ESpeak
 		use_espeak(text)
+		tts_busy = false  # Reset the tts_busy flag after using ESpeak
 
 # Called when response received from Eleven Labs
 func _on_request_completed(result, response_code, headers, body):
-	tts_busy = false
 	if response_code != 200:
 		print("There was an error, response code: " + str(response_code))
 		print(result)
@@ -105,12 +102,14 @@ func _on_request_completed(result, response_code, headers, body):
 				use_espeak("Error processing the request.")
 		else:
 			use_espeak("Error processing the request.")
-		return
+	else:
+		var audio_stream = AudioStreamMP3.new()
+		audio_stream.data = body
+		eleven_labs_speech_player.stream = audio_stream
+		eleven_labs_speech_player.play()
 	
-	var audio_stream = AudioStreamMP3.new()
-	audio_stream.data = body
-	eleven_labs_speech_player.stream = audio_stream
-	eleven_labs_speech_player.play()
+	# Reset tts_busy flag
+	tts_busy = false
 	
 	# Let other nodes know that AI generated dialogue is ready from GPT
 	emit_signal("ElevenLabs_generated_speech")
@@ -122,7 +121,9 @@ func use_espeak(text: String):
 		var voice_id = voices[0]
 		DisplayServer.tts_stop()
 		DisplayServer.tts_speak(text, voice_id)
-
+	# Ensure tts_busy is reset after using ESpeak
+	tts_busy = false
+	
 # Function to manage the speech queue
 func manage_speech(chat_timer: Timer):
 	if not eleven_labs_speech_player.is_playing() and tts_queue.size() > 0:

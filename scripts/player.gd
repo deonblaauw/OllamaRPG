@@ -89,6 +89,9 @@ func send_prompt_to_llama(prompt):
 	handle_llama_queue()
 
 func handle_llama_queue():
+	print("llm busy: ",llm_busy)
+	print("llm queue size: ", llm_queue.size())
+	print("tts busy: ",tts.tts_busy)
 	if llm_busy or llm_queue.size() == 0 or tts.tts_busy:
 		return
 	

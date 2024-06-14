@@ -437,11 +437,11 @@ metadata/player = true
 
 [node name="LlamaAPI" type="Node" parent="."]
 script = ExtResource("4_6tmtv")
-llm_type = "llama3"
+llm_type = "OpenAI GPT-4-turbo"
 
 [node name="tts" type="Node" parent="."]
 script = ExtResource("3_37ifx")
-tts_provider = "Elevan Labs"
+tts_provider = "ESpeak"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 top_level = true
