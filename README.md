@@ -33,6 +33,15 @@ The following OpenAI models are supported:
 - `OpenAI GPT-4-turbo` 
 - `OpenAI GPT-3.5-turbo-0125`
 
+## Text to Speech
+The following TTS modules are supported:
+- `ESpeak`
+- `Eleven Labs`
+
+To use `Eleven Labs`, you can enable it in the inspector. Make sure to set the following variables in the `config.cfg` file:
+`ELEVEN_LABS_API_KEY`
+`ELEVEN_LABS_VOICE_ID`
+
 ## Interaction
 
 You can control the main player character, George, by using keyboard arrows or WASD keys. You can move George around in the game world, and have him discover items or NPCs. You can also talk to George by typing questions in the search box. You can ask George where he is, what he's doing and why. You can also ask George to walk somewhere by giving a location, or by asking him to walk to a previously discovered place or item.
