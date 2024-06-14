@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-signal player_command
+signal chest_command
 
 @onready var llama_api = $LlamaAPI
 @onready var chat_timer = $ChatTimer
@@ -8,51 +8,20 @@ signal player_command
 @onready var user_input = $Control/UserInput
 @onready var position_response_timer = $PositionResponseTimer
 @onready var command_display = $"Command Display/CommandDisplay"
-@onready var cmd_disp_timer = $"Command Display/cmdDispTimer"
+@onready var cmd_disp_timer = $"Command Display/cmdDispTimer" # Add HTTPRequest node to your scene
+#@onready var tts = preload("res://scripts/tts.gd").new()  # Load the TTS script as a library
+@onready var tts = $tts
 
 const OBJECT_PREPROMPT = ". You find a "
-const POSTPROMPT = ""
 const HIST_PREPEND = " : "
-const POS_UPDATE_MSG = "Report your {current_location(x,y)}"
-const WAKEUP_INSTRUCT = "You find yourself outside, ready to explore!"
 
-@export var personality: String = """
-We are playing a game where you pretend to be an adventurer. This is happening
-inside a computer, so you will be given instructions on control commands you have
-access to and response messages you might be receiving. These commands will be parsed,
-so you need to output them exactly as prescribed below, otherwise I'll lose my job. 
+const POS_UPDATE_MSG = """
+Take a deep breath. Think step-by-step. Explain what you are doing and why you are doing it. 
+After explaining your thought process, you report your {current_location"""
+const WAKEUP_INSTRUCT = "You wake up"
 
-Here are the details of the role playing game we are going to play:
-
-You are a brave adventurer on a quest! You love to explore! You read all of the instructions
-given to you, but only comment on the most recent part.You always describe what you encounter and remember
-the locations where you found things. You never move to unknown locations,
-you only move to locations you have seen before, otherwise I'll lose my job!
-
-You have the following commands available to you. You can ONLY use these
-commands, you can't make up new commands, otherwise I'll lose my job:
-	{move(x,y)}
-	{open(name)}
-	{close(name)}
-	{pickup(name)}
-	
-When asked to walk or go somewhere, you need to output {move(x,y)}
-where x and y are the location coordinates. You will be given your current position,
-and when asked to move, you need to add at least 150 units to either your x or y coordinates,
-depending on the direction you wish to travel.
-
-When asked to move left or West, x will reduce in value and eventually become negative or more negative.
-When asked to move right or East, x will increase in value and eventually become positive or more positive.
-When asked to move up or North, y will reduce in value and eventually become negative or more negative.
-When asked to move down or South, y will increase in value and eventually become positive or more positive.
-
-You don't need to reach the EXACT location when asked, it's acceptable to be within 10 units of the desired
-location.
-
-When asked to report your current location use the following: {current_location(x,y)}, 
-where the x and y values are your current x and y values. You ONLY send {current_location(x,y)} when
-reporting location for yourself, and only yourself, nothing else, otherwise I'll lose my job!!
-"""
+@export var personality_file_path: String = "res://scripts//personality-1.txt"
+var personality: String
 
 var chat_history = " "
 var HISTORY_TOKENS = 2000 # roughly amount of tokens to keep in history buffer
@@ -74,20 +43,36 @@ var llm_busy = false
 var _body = null
 
 func _ready():
+	add_child(tts)
+	#tts.use_eleven_labs = true  # Set this to true or false as needed
 	rich_text_label.add_theme_font_size_override("normal_font_size", 8)
 	animation_handler("idle")
 	send_prompt_to_llama(WAKEUP_INSTRUCT)
 	position_response_timer.start()
+	personality = load_personality_from_file(personality_file_path)
+	print("[Player] Personality loaded: ==> ", personality)
 
 func _physics_process(delta):		
 	player_movement(delta)
 	handle_llama_queue()
-	manage_speech()
+	tts.manage_speech(chat_timer)
 	
 	if autonav == true:
 		agent_nav(autonav_cmd, delta)
 		target_reached(autonav_cmd, delta)
-		
+
+func load_personality_from_file(file_path: String) -> String:
+	print("path: ",file_path)
+	var file = FileAccess.open(file_path, FileAccess.READ)
+	if file:
+		var content = file.get_as_text()
+		file.close()
+		return content
+	else:
+		print("Error: File not found at ", file_path)
+		return ""
+
+						
 func target_reached(target_position, delta):
 	var dist = target_position - global_position
 	dist = dist.length()
@@ -104,7 +89,7 @@ func send_prompt_to_llama(prompt):
 	handle_llama_queue()
 
 func handle_llama_queue():
-	if llm_busy or llm_queue.size() == 0 or tts_busy:
+	if llm_busy or llm_queue.size() == 0 or tts.tts_busy:
 		return
 	
 	llm_busy = true
@@ -122,17 +107,6 @@ func handle_llama_queue():
 	print("[Player] handle_llama_queue()")
 	append_to_chat_history(messages[1]["content"])
 
-func manage_speech():
-	if tts_busy and not DisplayServer.tts_is_speaking():
-		chat_timer.start()
-		tts_busy = false
-		if tts_queue.size() > 0:
-			talk(tts_queue.pop_front())
-			
-	# escape sequence to quit a chat. chat still saved in history
-	if Input.is_key_pressed(KEY_ESCAPE) or Input.is_key_pressed(KEY_ENTER):
-		clear_chat()
-			
 func player_movement(_delta):
 	if Input.is_action_pressed("ui_right"):
 		velocity.x = speed
@@ -184,19 +158,7 @@ func animation_handler(direction):
 		$AnimatedSprite2D.play("side_idle_right")
 	else:
 		$AnimatedSprite2D.play("side_idle_right")
-	
-func talk(msg):
-	if tts_busy:
-		tts_queue.append(msg)
-		return
-		
-	var voices = DisplayServer.tts_get_voices_for_language("en")
-	var voice_id = voices[0]
-	DisplayServer.tts_stop()
-	DisplayServer.tts_speak(msg, voice_id)
-	tts_busy = true
 
-# Function called when player detects something 
 func _on_sense_body_shape_entered(_body_rid, body, _body_shape_index, _local_shape_index):
 	if (body.name != "TileMap") and (!body.has_method("player")):
 		print("[Player] found: ",body.name)		
@@ -223,7 +185,7 @@ func _on_llama_response(response, is_error):
 		append_to_chat_history(HIST_PREPEND+response)
 		var resp = parse_response(response)
 		rich_text_label.add_text(resp)
-		talk(resp) 
+		tts.talk(resp) 
 		print("[Player] ----------------- RESPONSE from LLM -----------------")
 		print(response)
 		print("[Player] ----------------- current chat history stats --------")
@@ -238,17 +200,17 @@ func parse_response(response: String) -> String:
 	var regex_move = RegEx.new()
 	var regex_pickup = RegEx.new()
 	var regex_open = RegEx.new()
+	var regex_close = RegEx.new()
 	var regex_curr_loc = RegEx.new()
 
 	# Updated regex to support curly braces and floating-point numbers
 	regex_move.compile("{\\s*move\\((-?\\d+\\.?\\d*),\\s*(-?\\d+\\.?\\d*)\\)\\s*}")
 	regex_pickup.compile("{\\s*pickup\\(([^)]+)\\)\\s*}")
 	regex_open.compile("{\\s*open\\(([^)]+)\\)\\s*}")
+	regex_close.compile("{\\s*close\\(([^)]+)\\)\\s*}")
 	regex_curr_loc.compile("{\\s*current_location\\((-?\\d+\\.?\\d*),\\s*(-?\\d+\\.?\\d*)\\)\\s*}")
 	
 	print("[Player] Parsing LLM response.")
-	#player_command.emit(response)
-	emit_signal("player_command",response)
 	
 	# Process move command
 	var match_move = regex_move.search(response)
@@ -282,7 +244,7 @@ func parse_response(response: String) -> String:
 	# Process open command
 	var match_open = regex_open.search(response)
 	if match_open:
-		
+		emit_signal("chest_command",response)
 		var item_to_open = match_open.get_string(1)
 		# Handle the open logic here, e.g., open item_to_open
 		print("[Player] Opening: ", item_to_open)
@@ -291,6 +253,19 @@ func parse_response(response: String) -> String:
 		
 		# Remove the open command from the response text
 		response = response.replace(match_open.get_string(0), " Trying to open the " + item_to_open)
+	
+	# Process close command
+	var match_close = regex_close.search(response)
+	if match_close:
+		emit_signal("chest_command",response)
+		var item_to_close = match_close.get_string(1)
+		# Handle the close logic here, e.g., open item_to_close
+		print("[Player] Closing: ", item_to_close)
+		command_display.text = "close("+item_to_close+")"
+		cmd_disp_timer.start()
+		
+		# Remove the close command from the response text
+		response = response.replace(match_close.get_string(0), " Trying to close the " + item_to_close)
 		
 	# Process current_location command
 	var match_curr_loc = regex_curr_loc.search(response)
@@ -312,8 +287,8 @@ func clear_chat():
 	chat_timer.stop()
 	DisplayServer.tts_stop()
 	rich_text_label.clear()
-	tts_busy = false
-	tts_queue.clear()
+	tts.tts_busy = false
+	tts.tts_queue.clear()
 
 func append_to_chat_history(text):
 	# Append new text to the chat history
@@ -404,6 +379,14 @@ func round_to_decimal_places(value, places):
 
 var pos_update_once = true
 func _on_position_response_timer_timeout():
+	#var x = round_to_decimal_places(global_position.x,0)
+	#var y = round_to_decimal_places(global_position.y,0)
+	#var tmp = POS_UPDATE_MSG+"("+str(x)+","+str(y)+")"
+	#print("[Player] Sending position to LLM: ",tmp)
+	#send_prompt_to_llama(tmp)
+	#position_response_timer.start()
+
+
 	if velocity.length_squared() > 0:
 		print("[Player] moving")
 		position_response_timer.start()
@@ -414,13 +397,9 @@ func _on_position_response_timer_timeout():
 		pos_update_once = false
 		var x = round_to_decimal_places(global_position.x,0)
 		var y = round_to_decimal_places(global_position.y,0)
-		var tmp = POS_UPDATE_MSG+"("+str(x)+","+str(y)+")"
+		var tmp = POS_UPDATE_MSG+"("+str(x)+","+str(y)+")}"
 		print("[Player] Sending position to LLM: ",tmp)
 		send_prompt_to_llama(tmp)
 		
-
-
-
 func _on_cmd_disp_timer_timeout():
 	command_display.text = ""
-

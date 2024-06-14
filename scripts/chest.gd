@@ -12,8 +12,8 @@ func _process(delta):
 	pass
 
 
-func _on_george_player_command(response):
-	print("++++++##############+++++++++++++#######++++++++")
+func _on_george_chest_command(response):
+	print("[Chest] Signal from George received")
 	var regex_open = RegEx.new()
 	regex_open.compile("{\\s*open\\(([^)]+)\\)\\s*}")
 	var regex_close = RegEx.new()
@@ -40,4 +40,4 @@ func _on_george_player_command(response):
 		
 		# Remove the open command from the response text
 		response = response.replace(match_close.get_string(0), " Closed the " + item_to_close)
-		
+	
